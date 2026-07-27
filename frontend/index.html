@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>CyberGuard AI | Enterprise Threat Detection Platform</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .glass-panel {
+      background: rgba(30, 41, 59, 0.4);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .cyan-glow {
+      text-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
+    }
+    .alert-glow {
+      box-shadow: inset 0 0 15px rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.5);
+    }
+    @keyframes pulse-cyan {
+      0% { transform: scale(0.95); opacity: 0.5; }
+      50% { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.5; }
+    }
+    .animate-pulse-cyan {
+      animation: pulse-cyan 2s infinite ease-in-out;
+    }
+    /* ── Hide all scrollbars entirely while keeping scroll behaviour ── */
+    * {
+      scrollbar-width: none;       /* Firefox */
+      -ms-overflow-style: none;    /* IE / Edge legacy */
+    }
+    *::-webkit-scrollbar {
+      display: none;               /* Chrome / Safari / Opera */
+    }
+
+    /* ── Toast Notifications ── */
+    #toast-container {
+      position: fixed;
+      bottom: 5rem;
+      right: 1.5rem;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+    .toast {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      backdrop-filter: blur(20px);
+      pointer-events: all;
+      animation: toastIn 0.25s ease forwards;
+      min-width: 240px;
+      max-width: 360px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    }
+    .toast.info  { background: rgba(26,33,34,0.95); border: 1px solid rgba(34,211,238,0.4); color: #8aebff; }
+    .toast.error { background: rgba(26,33,34,0.95); border: 1px solid rgba(239,68,68,0.4);  color: #fca5a5; }
+    .toast.ok    { background: rgba(26,33,34,0.95); border: 1px solid rgba(16,185,129,0.4); color: #6ee7b7; }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0)    scale(1);    }
+    }
+    @keyframes toastOut {
+      from { opacity: 1; transform: translateY(0); }
+      to   { opacity: 0; transform: translateY(8px); }
+    }
+
+  </style>
+
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-container-low": "#161d1e",
+            "surface": "#0e1416",
+            "primary": "#8aebff",
+            "on-tertiary-fixed": "#131b2e",
+            "inverse-primary": "#006877",
+            "secondary-container": "#3e495d",
+            "on-surface-variant": "#bbc9cd",
+            "tertiary-fixed": "#dae2fd",
+            "on-error": "#690005",
+            "surface-container": "#1a2122",
+            "on-tertiary-container": "#474e64",
+            "surface-container-high": "#242b2d",
+            "inverse-on-surface": "#2b3233",
+            "surface-tint": "#2fd9f4",
+            "error-container": "#93000a",
+            "surface-container-highest": "#2f3638",
+            "on-error-container": "#ffdad6",
+            "on-secondary-fixed": "#111c2d",
+            "surface-dim": "#0e1416",
+            "on-secondary-container": "#aeb9d0",
+            "on-secondary-fixed-variant": "#3c475a",
+            "on-surface": "#dde4e5",
+            "secondary-fixed": "#d8e3fb",
+            "outline": "#859397",
+            "outline-variant": "#3c494c",
+            "on-primary-fixed-variant": "#004e5a",
+            "on-tertiary": "#283044",
+            "tertiary-fixed-dim": "#bec6e0",
+            "surface-variant": "#2f3638",
+            "background": "#0e1416",
+            "secondary-fixed-dim": "#bcc7de",
+            "primary-fixed": "#a2eeff",
+            "tertiary-container": "#b9c0da",
+            "on-primary": "#00363e",
+            "on-secondary": "#263143",
+            "secondary": "#bcc7de",
+            "error": "#ffb4ab",
+            "on-background": "#dde4e5",
+            "on-tertiary-fixed-variant": "#3f465c",
+            "on-primary-fixed": "#001f25",
+            "primary-fixed-dim": "#2fd9f4",
+            "on-primary-container": "#005763",
+            "primary-container": "#22d3ee",
+            "inverse-surface": "#dde4e5",
+            "surface-bright": "#343a3c",
+            "surface-container-lowest": "#090f11",
+            "tertiary": "#d5dcf6"
+          },
+          "fontFamily": {
+            "code-sm": ["JetBrains Mono"],
+            "headline-md-mobile": ["Inter"],
+            "body-base": ["Inter"],
+            "display-lg": ["Inter"],
+            "headline-md": ["Inter"],
+            "label-caps": ["JetBrains Mono"]
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-surface text-on-surface font-body-base selection:bg-primary/30 selection:text-primary overflow-hidden h-screen flex">
+
+  <!-- Left SideNavBar Rail -->
+  <nav class="fixed left-0 top-0 h-full flex flex-col z-50 bg-surface-container-low border-r border-outline-variant w-14 hover:w-48 group" style="transition: width 180ms ease-out; will-change: width;">
+
+    <div class="px-3 py-4 flex items-center gap-3">
+      <div class="w-7 h-7 bg-primary rounded-lg flex items-center justify-center shrink-0 shadow-[0_0_12px_rgba(34,211,238,0.5)]">
+        <span class="material-symbols-outlined text-on-primary text-[16px]" style="font-variation-settings: 'FILL' 1;">security</span>
+      </div>
+      <div class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap overflow-hidden">
+        <h1 class="text-sm font-bold text-primary leading-none">CyberGuard AI</h1>
+        <p class="text-[9px] uppercase tracking-widest text-on-surface-variant">Vigilant Elite</p>
+      </div>
+    </div>
+    <div class="flex-1 px-2 py-2 space-y-1">
+      <a id="nav-dash" class="flex items-center gap-3 px-2 py-2 text-primary bg-primary-container/10 border-l-2 border-primary rounded-r-md cursor-pointer" onclick="switchTab('dashboard')">
+        <span class="material-symbols-outlined text-[20px] shrink-0" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+        <span class="opacity-0 group-hover:opacity-100 transition-opacity text-xs font-medium">Dashboard</span>
+      </a>
+      <a id="nav-threats" class="flex items-center gap-3 px-2 py-2 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface rounded-md cursor-pointer transition-all" onclick="switchTab('forensics')">
+        <span class="material-symbols-outlined text-[20px] shrink-0">policy</span>
+        <span class="opacity-0 group-hover:opacity-100 transition-opacity text-xs font-medium">Forensics</span>
+      </a>
+
+
+    </div>
+    <div class="px-2 pb-4">
+      <button class="w-full bg-primary py-1.5 rounded-lg text-on-primary text-xs font-bold hidden group-hover:flex items-center justify-center gap-1.5 active:scale-95 shadow-[0_0_15px_rgba(34,211,238,0.4)]" onclick="analyzeLogs()">
+        <span class="material-symbols-outlined text-[16px]">bolt</span>
+        Execute Triage
+      </button>
+    </div>
+  </nav>
+
+
+  <!-- Main Content Canvas -->
+  <main class="ml-14 mr-4 mt-4 flex-1 p-6 overflow-y-auto relative h-screen transition-all duration-300">
+
+    
+    <!-- DASHBOARD VIEW -->
+    <div id="view-dashboard" class="max-w-[1600px] mx-auto space-y-6">
+      
+      <!-- Hero Section: Threat Score Semicircular Gauge -->
+      <section class="glass-panel rounded-xl p-6 relative overflow-hidden flex flex-col items-center">
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-error to-transparent"></div>
+        <h2 class="font-code-sm text-xs text-on-surface-variant mb-4 tracking-widest uppercase">GLOBAL THREAT VECTOR RISK GAUGE</h2>
+        <div class="relative w-80 h-36">
+          <svg class="w-full h-full" viewBox="0 0 100 50">
+            <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#1a2122" stroke-linecap="round" stroke-width="8"></path>
+            <path id="gauge-path" d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#22d3ee" stroke-dasharray="125.6" stroke-dashoffset="125.6" stroke-linecap="round" stroke-width="8" style="transition: stroke-dashoffset 1s ease, stroke 0.5s ease, opacity 0.4s ease; opacity: 0;"></path>
+            <defs>
+              <linearGradient id="gaugeGradient" x1="0%" x2="100%" y1="0%" y2="0%">
+                <stop offset="0%" stop-color="#22d3ee"></stop>
+                <stop offset="60%" stop-color="#fb923c"></stop>
+                <stop offset="100%" stop-color="#ef4444"></stop>
+              </linearGradient>
+            </defs>
+          </svg>
+          <div class="absolute bottom-0 left-1/2 -translate-x-1/2 text-center">
+            <span id="threat-score-val" class="font-headline-md text-4xl font-extrabold block text-primary leading-none">0</span>
+            <span id="gauge-risk-label" class="font-code-sm text-xs text-on-surface-variant font-bold tracking-wider">STANDBY</span>
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-4 gap-6 mt-6 w-full border-t border-outline-variant pt-4">
+          <div class="text-center">
+            <p class="text-[10px] text-on-surface-variant uppercase font-mono">Total Analyzed</p>
+            <p id="stat-total" class="text-xl font-bold text-primary font-mono">142</p>
+          </div>
+          <div class="text-center">
+            <p class="text-[10px] text-on-surface-variant uppercase font-mono">PII Items Scrubbed</p>
+            <p id="stat-pii" class="text-xl font-bold text-emerald-400 font-mono">589</p>
+          </div>
+          <div class="text-center">
+            <p class="text-[10px] text-on-surface-variant uppercase font-mono">Zero-Day Attacks</p>
+            <p id="stat-zeroday" class="text-xl font-bold text-error font-mono">18</p>
+          </div>
+          <div class="text-center">
+            <p class="text-[10px] text-on-surface-variant uppercase font-mono">Triage Latency</p>
+            <p id="stat-latency" class="text-xl font-bold text-amber-400 font-mono">1.84s</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5 Parallel Multi-Agent Execution Cards -->
+      <section class="grid grid-cols-1 md:grid-cols-5 gap-4">
+        
+        <!-- Agent: Orchestrator -->
+        <div class="glass-panel p-4 rounded-xl flex flex-col gap-2 group hover:border-primary/50 transition-colors">
+          <div class="flex justify-between items-start">
+            <div class="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+              <span class="material-symbols-outlined text-primary animate-pulse-cyan text-[20px]" style="font-variation-settings: 'FILL' 1;">hub</span>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-primary/20 text-primary uppercase">Master</span>
+          </div>
+          <div>
+            <h3 class="text-xs font-bold text-on-surface">Orchestrator Agent</h3>
+            <p class="text-[10px] text-on-surface-variant font-mono">Phi-4-reasoning</p>
+          </div>
+        </div>
+
+        <!-- Agent: Anomaly -->
+        <div class="glass-panel p-4 rounded-xl flex flex-col gap-2 group hover:border-primary/50 transition-colors">
+          <div class="flex justify-between items-start">
+            <div class="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+              <span class="material-symbols-outlined text-primary animate-pulse-cyan text-[20px]" style="font-variation-settings: 'FILL' 1;">radar</span>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-secondary-container/50 text-secondary-fixed uppercase">GPT-4o</span>
+          </div>
+          <div>
+            <h3 class="text-xs font-bold text-on-surface">1. Anomaly & Zero-Day</h3>
+            <p class="text-[10px] text-on-surface-variant font-mono">Pattern & Vision OCR</p>
+          </div>
+        </div>
+
+        <!-- Agent: Threat Intel -->
+        <div class="glass-panel p-4 rounded-xl flex flex-col gap-2 group hover:border-primary/50 transition-colors">
+          <div class="flex justify-between items-start">
+            <div class="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+              <span class="material-symbols-outlined text-primary animate-pulse-cyan text-[20px]" style="font-variation-settings: 'FILL' 1;">psychology</span>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-secondary-container/50 text-secondary-fixed uppercase">DeepSeek</span>
+          </div>
+          <div>
+            <h3 class="text-xs font-bold text-on-surface">2. Threat Intel & RAG</h3>
+            <p class="text-[10px] text-on-surface-variant font-mono">SQLite FastMCP DB</p>
+          </div>
+        </div>
+
+        <!-- Agent: Auto Response -->
+        <div class="glass-panel p-4 rounded-xl flex flex-col gap-2 group hover:border-primary/50 transition-colors">
+          <div class="flex justify-between items-start">
+            <div class="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+              <span class="material-symbols-outlined text-primary animate-pulse-cyan text-[20px]" style="font-variation-settings: 'FILL' 1;">shield_with_heart</span>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-primary/20 text-primary uppercase">Phi-4</span>
+          </div>
+          <div>
+            <h3 class="text-xs font-bold text-on-surface">3. Response Playbook</h3>
+            <p class="text-[10px] text-on-surface-variant font-mono">Mitigation Steps</p>
+          </div>
+        </div>
+
+        <!-- Agent: Forensics -->
+        <div class="glass-panel p-4 rounded-xl flex flex-col gap-2 group hover:border-primary/50 transition-colors">
+          <div class="flex justify-between items-start">
+            <div class="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+              <span class="material-symbols-outlined text-primary animate-pulse-cyan text-[20px]" style="font-variation-settings: 'FILL' 1;">fingerprint</span>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-secondary-container/50 text-secondary-fixed uppercase">DeepSeek</span>
+          </div>
+          <div>
+            <h3 class="text-xs font-bold text-on-surface">4. Incident Forensics</h3>
+            <p class="text-[10px] text-on-surface-variant font-mono">Evidence Chain</p>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Multi-Source Ingestion & Agent Output Panels -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- Log Ingestion Panel -->
+        <section class="glass-panel rounded-xl p-6 space-y-4">
+          <div class="flex items-center justify-between border-b border-outline-variant pb-3">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-primary">download</span>
+              <h3 class="text-sm font-bold">Multi-Source Log Ingestion & PII Scrubbing</h3>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/40">0% PII Leakage</span>
+          </div>
+
+          <!-- Drag and Drop Dropzone -->
+          <div class="border-2 border-dashed border-primary/30 rounded-xl p-4 text-center bg-primary/5 hover:bg-primary/10 cursor-pointer transition-colors" onclick="document.getElementById('file-input').click()">
+            <span class="material-symbols-outlined text-primary text-[28px] mb-1">add_photo_alternate</span>
+            <p class="text-xs font-bold text-on-surface">Upload Wireshark Capture / Terminal Screenshot</p>
+            <p class="text-[10px] text-on-surface-variant">Triggers GPT-4o Vision OCR Log Extraction</p>
+            <input type="file" id="file-input" style="display: none;" accept="image/*" onchange="handleImageUpload(event)">
+          </div>
+
+          <!-- Uploaded Image Preview Box -->
+          <div id="image-preview-container" class="hidden p-3 bg-surface-container-lowest border border-primary/40 rounded-xl space-y-2">
+            <div class="flex items-center justify-between border-b border-outline-variant/30 pb-2">
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary text-[16px]">image</span>
+                <span id="image-file-name" class="text-xs font-bold text-primary font-mono truncate max-w-[200px]">screenshot.png</span>
+                <span id="image-file-size" class="text-[9px] px-1.5 py-0.5 rounded bg-primary/10 text-primary font-mono">0 KB</span>
+              </div>
+              <button class="text-[11px] text-error hover:underline flex items-center gap-0.5 cursor-pointer" onclick="removeUploadedImage()">
+                <span class="material-symbols-outlined text-[13px]">close</span> Clear Image
+              </button>
+            </div>
+            <div class="relative max-h-40 overflow-hidden rounded-lg border border-outline-variant/30 bg-black/50 flex items-center justify-center p-2">
+              <img id="image-thumbnail" class="max-h-36 object-contain rounded border border-primary/20 shadow-lg" src="" alt="Uploaded Screenshot">
+            </div>
+          </div>
+
+
+          <div>
+            <label class="text-[11px] text-on-surface-variant font-mono block mb-1.5">Raw Network Packets / Security Event Logs:</label>
+            <textarea id="log-input" class="w-full h-32 bg-surface-container-lowest border border-outline-variant rounded-lg p-3 text-xs font-mono text-primary focus:border-primary focus:ring-0 outline-none" placeholder="2026-07-27 14:22:01 sshd[4921]: Authentication bypassed for user root from 192.168.1.105 port 22 email=admin@enterprise.com secret=sk_live_99a8b7c6..."></textarea>
+          </div>
+
+          <div class="grid grid-cols-4 gap-2">
+            <button class="bg-primary hover:bg-primary-fixed-dim text-on-primary font-bold py-2 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-transform active:scale-95 shadow-[0_0_15px_rgba(34,211,238,0.3)]" onclick="analyzeLogs()">
+              <span class="material-symbols-outlined text-[15px]">rocket_launch</span>
+              Execute Triage
+            </button>
+            <button class="bg-surface-container-high hover:bg-surface-bright text-on-surface text-xs py-2 rounded-lg font-medium border border-outline-variant/50 flex items-center justify-center gap-1.5" onclick="previewPrivacy()">
+              <span class="material-symbols-outlined text-[15px]">lock</span>
+              PII Scrubbing
+            </button>
+            <button class="bg-surface-container-high hover:bg-surface-bright text-on-surface text-xs py-2 rounded-lg font-medium border border-outline-variant/50 flex items-center justify-center gap-1.5" onclick="loadSampleLog()">
+              <span class="material-symbols-outlined text-[15px]">description</span>
+              Sample Log
+            </button>
+            <button class="bg-surface-container-high hover:bg-error/20 text-on-surface-variant hover:text-error text-xs py-2 rounded-lg font-medium border border-outline-variant/50 hover:border-error/40 transition-all flex items-center justify-center gap-1.5" onclick="clearAll()">
+              <span class="material-symbols-outlined text-[15px]">delete_sweep</span>
+              Clear
+            </button>
+          </div>
+
+
+
+          <!-- Side by side diff -->
+          <div id="privacy-preview" class="hidden mt-3 p-3 bg-surface-container-lowest border border-outline-variant rounded-lg space-y-2">
+            <p class="text-[11px] font-bold text-emerald-400">Local Privacy Guardrail Audit Summary:</p>
+            <div class="grid grid-cols-2 gap-2 text-[10px] font-mono">
+              <div class="p-2 bg-surface-container border border-error/30 rounded text-error max-h-28 overflow-y-auto" id="raw-preview-box"></div>
+              <div class="p-2 bg-surface-container border border-primary/30 rounded text-primary max-h-28 overflow-y-auto" id="sanitized-preview-box"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Multi-Agent Output Cards -->
+        <section class="glass-panel rounded-xl p-6 space-y-4">
+          <div class="flex items-center justify-between border-b border-outline-variant pb-3">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-primary">dynamic_feed</span>
+              <h3 class="text-sm font-bold">Parallel Agent Findings</h3>
+            </div>
+            <span id="threat-badge" class="px-2.5 py-1 rounded-full text-[10px] font-mono bg-error/20 text-error border border-error/40 font-bold">
+              Threat Level: WAITING
+            </span>
+          </div>
+
+          <div class="space-y-3 max-h-[380px] overflow-y-auto pr-1">
+            <div class="p-3 bg-surface-container-low border border-outline-variant/50 rounded-lg">
+              <div class="flex justify-between items-center mb-1">
+                <span class="text-xs font-bold text-primary">Master Orchestrator Synthesis</span>
+                <span class="text-[9px] font-mono text-on-surface-variant">Phi-4-reasoning</span>
+              </div>
+              <div id="out-orchestrator" class="text-xs text-on-surface-variant leading-relaxed">Click "Execute Parallel Triage" to initiate multi-agent incident analysis.</div>
+            </div>
+
+            <div class="p-3 bg-surface-container-low border border-outline-variant/50 rounded-lg">
+              <div class="flex justify-between items-center mb-1">
+                <span class="text-xs font-bold text-primary">1. Anomaly & Zero-Day Detection</span>
+                <span class="text-[9px] font-mono text-on-surface-variant">GPT-4o</span>
+              </div>
+              <div id="out-anomaly" class="text-xs text-on-surface-variant leading-relaxed">Awaiting log ingestion...</div>
+            </div>
+
+            <div class="p-3 bg-surface-container-low border border-outline-variant/50 rounded-lg">
+              <div class="flex justify-between items-center mb-1">
+                <span class="text-xs font-bold text-primary">2. Threat Intel & RAG (SQLite FastMCP)</span>
+                <span class="text-[9px] font-mono text-on-surface-variant">DeepSeek-V3</span>
+              </div>
+              <div id="out-threat" class="text-xs text-on-surface-variant leading-relaxed">Awaiting signature lookup...</div>
+            </div>
+
+            <div class="p-3 bg-surface-container-low border border-outline-variant/50 rounded-lg">
+              <div class="flex justify-between items-center mb-1">
+                <span class="text-xs font-bold text-primary">3. Response Playbook Mitigation</span>
+                <span class="text-[9px] font-mono text-on-surface-variant">Phi-4-reasoning</span>
+              </div>
+              <div id="out-playbook" class="text-xs text-on-surface-variant leading-relaxed">Awaiting containment evaluation...</div>
+            </div>
+
+            <div class="p-3 bg-surface-container-low border border-outline-variant/50 rounded-lg">
+              <div class="flex justify-between items-center mb-1">
+                <span class="text-xs font-bold text-primary">4. Incident Forensics & Evidence</span>
+                <span class="text-[9px] font-mono text-on-surface-variant">DeepSeek-V3</span>
+              </div>
+              <div id="out-forensics" class="text-xs text-on-surface-variant leading-relaxed">Awaiting evidence timeline...</div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Live Security Log Telemetry Stream -->
+      <section class="glass-panel rounded-xl overflow-hidden flex flex-col h-[320px]">
+        <div class="flex items-center justify-between px-6 py-3 border-b border-outline-variant bg-surface-container-high/40">
+          <div class="flex items-center gap-2">
+            <div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+            <h3 class="font-code-sm text-xs font-bold text-on-surface uppercase">Live Security Log Telemetry Stream</h3>
+          </div>
+          <div class="flex gap-4 text-[10px] font-mono">
+            <span class="text-on-surface-variant">1,204 EPS</span>
+            <span class="text-primary">BUFFER: 98%</span>
+          </div>
+        </div>
+        <div class="flex-1 p-4 font-code-sm text-xs log-scroll overflow-y-auto space-y-1 bg-surface-container-lowest/80">
+          <div class="flex gap-4 py-0.5 px-2 rounded hover:bg-white/5">
+            <span class="text-on-surface-variant/40 shrink-0">12:44:01.032</span>
+            <span class="text-primary shrink-0">[INFO]</span>
+            <span class="text-on-surface">Connection established to <span class="text-on-surface-variant italic">[SCRUBBED]</span> via Port 443</span>
+          </div>
+          <div class="flex gap-4 py-0.5 px-2 rounded hover:bg-white/5">
+            <span class="text-on-surface-variant/40 shrink-0">12:44:01.442</span>
+            <span class="text-error shrink-0 font-bold">[WARN]</span>
+            <span class="text-on-surface">Suspicious packet signature detected: <span class="text-error">T1071.001</span></span>
+          </div>
+          <div class="flex gap-4 py-0.5 px-2 rounded hover:bg-white/5">
+            <span class="text-on-surface-variant/40 shrink-0">12:44:02.110</span>
+            <span class="text-on-surface-variant shrink-0">[DEBUG]</span>
+            <span class="text-on-surface-variant/60">Tracing sub-process PID: 4402 - Parent: [SCRUBBED]</span>
+          </div>
+          <div class="flex gap-4 py-0.5 px-2 rounded hover:bg-white/5">
+            <span class="text-on-surface-variant/40 shrink-0">12:44:03.001</span>
+            <span class="text-error shrink-0 font-bold">[CRIT]</span>
+            <span class="text-error font-bold italic">BRUTE FORCE ATTEMPT DETECTED: Source IP [SCRUBBED] Target: DC_PRIMARY</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- MITRE ATT&CK Framework Activity Heatmap -->
+      <section class="glass-panel rounded-xl p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-code-sm text-xs font-bold text-on-surface uppercase">MITRE ATT&CK Framework Activity Heatmap</h3>
+          <div class="flex gap-4 text-[10px] font-mono">
+            <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded bg-surface-container-highest"></div> INACTIVE</div>
+            <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded bg-primary/20 border border-primary"></div> PROBING</div>
+            <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded bg-error/30 border border-error"></div> ACTIVE MATCH</div>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2">
+          <div class="space-y-1.5">
+            <p class="text-[9px] font-bold text-on-surface-variant uppercase text-center mb-1">Initial Access</p>
+            <div class="h-9 bg-surface-container-highest rounded border border-outline-variant/30 flex items-center justify-center text-[9px] text-center opacity-40">Valid Accounts</div>
+            <div class="h-9 bg-surface-container-highest rounded border border-outline-variant/30 flex items-center justify-center text-[9px] text-center opacity-40">Phishing</div>
+          </div>
+          <div class="space-y-1.5">
+            <p class="text-[9px] font-bold text-on-surface-variant uppercase text-center mb-1">Execution</p>
+            <div class="h-9 bg-surface-container-highest rounded border border-outline-variant/30 flex items-center justify-center text-[9px] text-center opacity-40">PowerShell</div>
+            <div class="h-9 bg-primary/20 border border-primary rounded flex items-center justify-center text-[9px] text-center text-primary font-bold">User Execution</div>
+          </div>
+          <div class="space-y-1.5">
+            <p class="text-[9px] font-bold text-error uppercase text-center mb-1">Persistence</p>
+            <div class="h-9 alert-glow bg-error/20 rounded flex items-center justify-center text-[9px] text-center text-error font-bold animate-pulse">Registry Keys</div>
+            <div class="h-9 alert-glow bg-error/20 rounded flex items-center justify-center text-[9px] text-center text-error font-bold">SchTask</div>
+          </div>
+          <div class="space-y-1.5">
+            <p class="text-[9px] font-bold text-on-surface-variant uppercase text-center mb-1">Discovery</p>
+            <div class="h-9 bg-surface-container-highest rounded border border-outline-variant/30 flex items-center justify-center text-[9px] text-center opacity-40">Account Disc</div>
+            <div class="h-9 bg-primary/20 border border-primary rounded flex items-center justify-center text-[9px] text-center text-primary font-bold">Network Share</div>
+          </div>
+          <div class="space-y-1.5">
+            <p class="text-[9px] font-bold text-on-surface-variant uppercase text-center mb-1">Lat Movement</p>
+            <div class="h-9 bg-surface-container-highest rounded border border-outline-variant/30 flex items-center justify-center text-[9px] text-center opacity-40">RDP</div>
+            <div class="h-9 bg-surface-container-highest rounded border border-outline-variant/30 flex items-center justify-center text-[9px] text-center opacity-40">SMB Share</div>
+          </div>
+          <div class="space-y-1.5">
+            <p class="text-[9px] font-bold text-error uppercase text-center mb-1">Exfiltration</p>
+            <div class="h-9 alert-glow bg-error/20 rounded flex items-center justify-center text-[9px] text-center text-error font-bold animate-pulse">Over C2 Channel</div>
+            <div class="h-9 bg-surface-container-highest rounded border border-outline-variant/30 flex items-center justify-center text-[9px] text-center opacity-40">Exfil to Cloud</div>
+          </div>
+          <div class="space-y-1.5">
+            <p class="text-[9px] font-bold text-on-surface-variant uppercase text-center mb-1">Impact</p>
+            <div class="h-9 bg-surface-container-highest rounded border border-outline-variant/30 flex items-center justify-center text-[9px] text-center opacity-40">Data Encrypt</div>
+            <div class="h-9 bg-surface-container-highest rounded border border-outline-variant/30 flex items-center justify-center text-[9px] text-center opacity-40">Account Delete</div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- FORENSICS VIEW -->
+    <div id="view-forensics" class="max-w-[1600px] mx-auto space-y-6 hidden">
+      <section class="glass-panel rounded-xl p-6 space-y-4">
+        <div class="flex items-center justify-between border-b border-outline-variant pb-3">
+          <h3 class="text-sm font-bold text-primary flex items-center gap-2">
+            <span class="material-symbols-outlined">policy</span>
+            Incident Forensics & Local MCP Database Evidence Audit
+          </h3>
+          <button class="bg-surface-container-high hover:bg-surface-bright text-xs px-3 py-1.5 rounded-lg border border-outline-variant" onclick="fetchForensicLogs()">🔄 Refresh DB Entries</button>
+        </div>
+
+        <table class="w-full text-xs font-mono border-collapse">
+          <thead>
+            <tr class="bg-surface-container-high text-primary border-b border-outline-variant">
+              <th class="p-2.5 text-left">ID</th>
+              <th class="p-2.5 text-left">Incident ID</th>
+              <th class="p-2.5 text-left">Timestamp</th>
+              <th class="p-2.5 text-left">Status</th>
+              <th class="p-2.5 text-left">Action Taken</th>
+              <th class="p-2.5 text-left">Findings Summary</th>
+            </tr>
+          </thead>
+          <tbody id="forensic-table-body">
+            <tr>
+              <td colspan="6" class="p-6 text-center text-on-surface-variant">Loading records from Local MCP SQLite DB...</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+
+  </main>
+
+  <!-- FLOATING COPILOT ACTION BUTTON (BOTTOM RIGHT) -->
+  <button id="copilot-fab" class="fixed bottom-6 right-6 z-50 w-14 h-14 bg-primary text-on-primary rounded-full flex items-center justify-center shadow-[0_0_25px_rgba(34,211,238,0.6)] hover:scale-110 active:scale-95 transition-all cursor-pointer" title="Open SOC Copilot AI" onclick="toggleCopilotDrawer()">
+    <span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">robot_2</span>
+    <span class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-emerald-400 rounded-full border-2 border-surface shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
+  </button>
+
+  <!-- RIGHT SLIDING NAVIGATION DRAWER: SOC COPILOT (CLOSED BY DEFAULT) -->
+  <aside id="copilot-drawer" class="fixed right-0 top-0 h-full w-80 z-50 flex flex-col bg-surface-container-high/90 backdrop-blur-2xl border-l border-outline-variant shadow-2xl translate-x-full transition-transform duration-300">
+    <div class="p-4 border-b border-outline-variant flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-secondary-container flex items-center justify-center relative">
+          <span class="material-symbols-outlined text-primary text-[24px]" style="font-variation-settings: 'FILL' 1;">robot_2</span>
+          <div class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-primary rounded-full border-2 border-surface shadow-[0_0_8px_rgba(34,211,238,0.8)]"></div>
+        </div>
+        <div>
+          <h2 class="font-bold text-sm text-on-surface leading-none">SOC Copilot AI</h2>
+          <p class="text-[9px] font-mono text-primary uppercase mt-0.5">Active Analysis</p>
+        </div>
+      </div>
+      <button class="w-8 h-8 rounded-lg hover:bg-surface-container-highest flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer" onclick="toggleCopilotDrawer()">
+        <span class="material-symbols-outlined text-[20px]">close</span>
+      </button>
+    </div>
+
+    <!-- Messages Container -->
+    <div id="chat-messages" class="flex-1 p-4 space-y-3 overflow-y-auto">
+      <div class="bg-surface-container-highest/60 p-3 rounded-xl border border-outline-variant/30 text-xs text-on-surface-variant">
+        <strong>Copilot:</strong> Hello SOC Analyst! I am ready to triage threats, search MITRE ATT&CK via RAG, and execute response playbooks.
+      </div>
+    </div>
+
+    <div class="p-4 border-t border-outline-variant space-y-2">
+      <div class="flex items-center gap-2 bg-surface-container-lowest border border-outline-variant p-2 rounded-xl">
+        <input id="chat-input" class="flex-1 bg-transparent border-none focus:ring-0 text-xs text-on-surface placeholder:text-on-surface-variant/50 py-1" placeholder="Ask Copilot or use mic..." type="text" onkeypress="if(event.key==='Enter') sendChatMessage()"/>
+        <button class="w-7 h-7 bg-surface-container-high hover:bg-surface-bright rounded-lg flex items-center justify-center text-on-surface" title="Voice Input STT" onclick="toggleVoiceSTT()">
+          <span class="material-symbols-outlined text-[16px]">mic</span>
+        </button>
+        <button class="w-7 h-7 bg-primary rounded-lg flex items-center justify-center text-on-primary" onclick="sendChatMessage()">
+          <span class="material-symbols-outlined text-[16px]">send</span>
+        </button>
+      </div>
+      <button class="w-full py-1.5 bg-surface-container-high hover:bg-surface-bright rounded-lg text-[11px] text-on-surface-variant flex items-center justify-center gap-1 border border-outline-variant/40" onclick="speakTTS()">
+        <span class="material-symbols-outlined text-[14px]">volume_up</span>
+        Readback Audio
+      </button>
+    </div>
+  </aside>
+
+  <script src="app.js"></script>
+
+  <script>
+    // Real-time telemetry log simulation
+    const logContainer = document.querySelector('.log-scroll');
+    if (logContainer) {
+      setInterval(() => {
+        if (Math.random() > 0.3) {
+          const logs = logContainer.children;
+          if (!logs.length) return;
+          const firstLog = logs[0];
+          const newLog = firstLog.cloneNode(true);
+          const now = new Date();
+          const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}.${now.getMilliseconds().toString().padStart(3, '0')}`;
+          newLog.querySelector('span:first-child').textContent = timeStr;
+          
+          const statusSpan = newLog.querySelector('span:nth-child(2)');
+          const textSpan = newLog.querySelector('span:last-child');
+          const roll = Math.random();
+          if (roll > 0.8) {
+            statusSpan.className = 'text-error shrink-0 font-bold';
+            statusSpan.textContent = '[CRIT]';
+            textSpan.className = 'text-error font-bold italic';
+            textSpan.innerHTML = 'ALERT: Unidentified outbound traffic encrypted via [SCRUBBED]';
+          } else if (roll > 0.5) {
+            statusSpan.className = 'text-primary shrink-0';
+            statusSpan.textContent = '[INFO]';
+            textSpan.className = 'text-on-surface';
+            textSpan.innerHTML = 'Session persistent across subnet [SCRUBBED]';
+          } else {
+            statusSpan.className = 'text-on-surface-variant shrink-0';
+            statusSpan.textContent = '[DEBUG]';
+            textSpan.className = 'text-on-surface-variant/60';
+            textSpan.innerHTML = 'Metric polling cycle complete: Node ID [SCRUBBED]';
+          }
+
+          logContainer.appendChild(newLog);
+          logContainer.scrollTop = logContainer.scrollHeight;
+          if (logs.length > 40) logContainer.removeChild(logs[0]);
+        }
+      }, 1200);
+    }
+  </script>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container"></div>
+
+</body>
+
+</html>

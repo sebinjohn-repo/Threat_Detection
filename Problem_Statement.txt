@@ -1,0 +1,26 @@
+AI-Powered Threat Detection and Response System 
+
+Summary: Develop an intelligent cybersecurity platform that uses machine learning to detect 
+advanced threats, analyze attack patterns, and automate incident response. 
+Problem Statement: Modern cyber threats are sophisticated and evolve rapidly, requiring 
+intelligent detection and response capabilities. Your task is to create an AI-powered 
+cybersecurity platform that analyzes network traffic, system logs, and user behavior to detect 
+threats in real-time. The system should identify both known and zero-day attacks, provide 
+threat intelligence, and automate response actions while minimizing false positives. 
+Steps: 
+
+• Design multi-source data ingestion from network, endpoint, and cloud security tools 
+• Implement anomaly detection algorithms for identifying unusual behavior patterns 
+• Create threat classification and severity scoring using ensemble methods 
+• Build automated incident response workflows with human oversight 
+• Develop threat intelligence integration and attack pattern analysis 
+• Include forensic analysis tools and incident documentation automation Suggested Data Requirements: 
+• Network traffic logs and security event data 
+• Known attack signatures and threat intelligence feeds 
+• User behavior baselines and normal activity patterns 
+• Incident response playbooks and escalation procedures 
+
+Themes: AI for CyberSecurity & CyberSecurity for AI, GenAI triaging for Cyberdefense 
+
+The steps and data requirements outlined above are intended solely as reference points to 
+assist you in conceptualising your solution.
